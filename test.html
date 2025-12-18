@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Water Tracker</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
+  background-size:200% 200%;
+  color:#fff;
+}
+
+.card{
+  background:rgba(0,0,0,0.5);
+  padding:30px;
+  border-radius:20px;
+  width:100%;
+  max-width:380px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  animation:fadeUp 0.8s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0; transform:translateY(20px)}
+  to{opacity:1; transform:translateY(0)}
+}
+
+h2{margin-top:0}
+
+.date{opacity:0.8; margin-bottom:20px}
+
+.progress{
+  background:#222;
+  border-radius:20px;
+  overflow:hidden;
+  height:25px;
+  margin-bottom:15px;
+}
+
+.progress-fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  transition:0.4s;
+}
+
+.amount{
+  margin-bottom:20px;
+  font-size:1.1rem;
+}
+
+.buttons button{
+  padding:10px 15px;
+  margin:5px;
+  border:none;
+  border-radius:10px;
+  font-size:0.95rem;
+  cursor:pointer;
+  background:#333;
+  color:#fff;
+  transition:0.3s;
+}
+
+.buttons button:hover{
+  background:#555;
+  transform:translateY(-2px);
+}
+
+.reset{
+  margin-top:15px;
+  font-size:0.8rem;
+  opacity:0.7;
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <h2>💧 Water Tracker</h2>
+  <div class="date" id="date"></div>
+
+  <div class="progress">
+    <div class="progress-fill" id="progress"></div>
+  </div>
+
+  <div class="amount" id="amount">0 ml / 2000 ml</div>
+
+  <div class="buttons">
+    <button onclick="addWater(250)">+250 ml</button>
+    <button onclick="addWater(500)">+500 ml</button>
+  </div>
+
+  <div class="reset">Auto reset setiap hari</div>
+</div>
+
+<script>
+const DAILY_GOAL = 2000;
+const WATER_KEY = 'water-amount';
+const DATE_KEY = 'water-date';
+
+const today = new Date();
+const todayStr = today.toDateString();
+
+document.getElementById('date').innerText = today.toLocaleDateString('ms-MY',{
+  weekday:'long', year:'numeric', month:'long', day:'numeric'
+});
+
+// RESET IF NEW DAY
+if(localStorage.getItem(DATE_KEY) !== todayStr){
+  localStorage.setItem(DATE_KEY, todayStr);
+  localStorage.setItem(WATER_KEY, 0);
+}
+
+let water = parseInt(localStorage.getItem(WATER_KEY)) || 0;
+
+function updateUI(){
+  const percent = Math.min((water / DAILY_GOAL) * 100, 100);
+  document.getElementById('progress').style.width = percent + '%';
+  document.getElementById('amount').innerText = ${water} ml / ${DAILY_GOAL} ml;
+}
+
+function addWater(amount){
+  water += amount;
+  if(water > DAILY_GOAL) water = DAILY_GOAL;
+  localStorage.setItem(WATER_KEY, water);
+  updateUI();
+}
+
+updateUI();
+
+// OPTIONAL REMINDER
+setInterval(()=>{
+  if(water < DAILY_GOAL){
+    console.log('Reminder: Minum air!');
+  }
+}, 1000 * 60 * 60); // setiap 1 jam
+let water = 0;
+
+const DAILY_GOAL = 2000;
+
+function addWater(amount){
+  water += amount;
+  if(water > DAILY_GOAL) water = DAILY_GOAL;
+
+  const percent = (water / DAILY_GOAL) * 100;
+  document.getElementById('progress').style.width = percent + '%';
+  document.getElementById('amount').innerText = water + ' ml / ' + DAILY_GOAL + ' ml';
+}
+
+</script>
+</body>
+</html>

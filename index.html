@@ -1,0 +1,195 @@
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Water Tracker</title>
+<style>
+body {
+font-family: Arial, sans-serif;
+margin: 0;
+background: #f4f8fb;
+color: #333;
+}
+header {
+background: #2196f3;
+color: white;
+padding: 16px;
+text-align: center;
+}
+nav {
+display: flex;
+justify-content: space-around;
+background: #e3f2fd;
+padding: 10px 0;
+}
+nav button {
+background: none;
+border: none;
+font-weight: bold;
+cursor: pointer;
+padding: 8px 12px;
+border-radius: 6px;
+}
+nav button.active {
+background: #2196f3;
+color: white;
+}
+.container {
+padding: 20px;
+text-align: center;
+}
+.buttons button {
+margin: 10px;
+padding: 14px 20px;
+font-size: 16px;
+cursor: pointer;
+border: none;
+border-radius: 8px;
+background: #4caf50;
+color: white;
+}
+.buttons button:hover {
+opacity: 0.9;
+}
+.total {
+margin-top: 20px;
+font-size: 20px;
+font-weight: bold;
+}
+.progress-container {
+width: 100%;
+max-width: 400px;
+height: 20px;
+background: #ddd;
+border-radius: 10px;
+margin: 20px auto 10px;
+overflow: hidden;
+}
+.progress-bar {
+height: 100%;
+width: 0%;
+background: #f44336;
+transition: width 0.3s ease, background 0.3s ease;
+}
+.target-setting {
+margin-top: 10px;
+}
+.reset-btn {
+margin-top: 15px;
+padding: 10px 16px;
+border: none;
+border-radius: 6px;
+background: #ff5252;
+color: white;
+cursor: pointer;
+}
+</style>
+</head>
+<body>
+	<header>
+<h1>Water Tracker 💧</h1>
+<p>Jejak pengambilan air harian anda</p>
+</header>
+<nav id="dayNav"></nav>
+
+
+<div class="container">
+<h2 id="currentDay">Ahad</h2>
+
+
+<div class="buttons">
+<button onclick="addWater(250)">+250 ml</button>
+<button onclick="addWater(500)">+500 ml</button>
+<button onclick="addWater(1000)">+1 Liter</button>
+</div>
+
+
+<div class="target-setting">
+<label>Sasaran harian (ml): </label>
+<input type="number" id="targetInput" value="2000" onchange="updateDisplay()" />
+</div>
+
+
+<button class="reset-btn" onclick="resetDay()">Reset Hari Ini</button>
+
+
+<div class="total">
+Jumlah hari ini: <span id="totalWater">0</span> ml
+</div>
+
+
+<div class="progress-container">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+<p><span id="progressText">0%</span> daripada sasaran 2000 ml</p>
+</div>
+<script>
+const days = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
+let selectedDay = days[new Date().getDay()];
+
+
+function loadNav() {
+const nav = document.getElementById('dayNav');
+nav.innerHTML = '';
+days.forEach(day => {
+const btn = document.createElement('button');
+btn.textContent = day;
+if (day === selectedDay) btn.classList.add('active');
+btn.onclick = () => selectDay(day);
+nav.appendChild(btn);
+});
+}
+function selectDay(day) {
+selectedDay = day;
+document.getElementById('currentDay').textContent = day;
+loadNav();
+updateDisplay();
+}
+
+
+function getWater(day) {
+return Number(localStorage.getItem('water_' + day)) || 0;
+}
+
+
+function setWater(day, amount) {
+localStorage.setItem('water_' + day, amount);
+}
+function addWater(amount) {
+const current = getWater(selectedDay);
+setWater(selectedDay, current + amount);
+updateDisplay();
+}
+
+
+function updateDisplay() {
+const total = getWater(selectedDay);
+document.getElementById('totalWater').textContent = total;
+
+
+const target = Number(document.getElementById('targetInput').value) || 2000;
+const percent = Math.min((total / target) * 100, 100);
+
+
+const bar = document.getElementById('progressBar');
+bar.style.width = percent + '%';
+
+
+if (percent < 50) bar.style.background = '#f44336';
+else if (percent < 80) bar.style.background = '#ff9800';
+else bar.style.background = '#4caf50';
+
+
+document.getElementById('progressText').textContent = Math.round(percent) + '%';
+}
+function resetDay() {
+setWater(selectedDay, 0);
+updateDisplay();
+}
+
+
+loadNav();
+selectDay(selectedDay);
+</script>
+</body>
+</html>

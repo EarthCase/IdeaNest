@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Water Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f4f8fb;
+    }
+    header {
+      background: #2196f3;
+      color: white;
+      padding: 16px;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: space-around;
+      background: #e3f2fd;
+      padding: 10px 0;
+    }
+    nav button {
+      border: none;
+      background: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    nav button.active {
+      background: #2196f3;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+    }
+    .container {
+      text-align: center;
+      padding: 20px;
+    }
+    .buttons button {
+      margin: 10px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      background: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    .progress-container {
+      width: 300px;
+      height: 20px;
+      background: #ddd;
+      border-radius: 10px;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: red;
+      transition: 0.3s;
+    }
+  </style>
+</head>
+<body>
+<script>
+  if (!localStorage.getItem('userName')) {
+    window.location.href = 'login.html';
+  }
+</script>
+<header>
+  <h1>Water Tracker 💧</h1>
+  <p>Hai, <span id="userName"></span></p>
+</header>
+
+<nav id="dayNav"></nav>
+
+<div class="container">
+  <h2 id="currentDay"></h2>
+
+  <div class="buttons">
+    <button onclick="addWater(250)">+250 ml</button>
+    <button onclick="addWater(500)">+500 ml</button>
+    <button onclick="addWater(1000)">+1 Liter</button>
+  </div>
+
+  <p>Jumlah hari ini: <span id="total">0</span> ml</p>
+
+  <div class="progress-container">
+    <div class="progress-bar" id="bar"></div>
+  </div>
+
+  <button onclick="logout()">Log Keluar</button>
+</div>
+<script>
+  document.getElementById('userName').textContent =
+    localStorage.getItem('userName');
+
+  const days = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+  let selectedDay = days[new Date().getDay()];
+
+  function loadNav() {
+    const nav = document.getElementById('dayNav');
+    nav.innerHTML = '';
+    days.forEach(d => {
+      const btn = document.createElement('button');
+      btn.textContent = d;
+      if (d === selectedDay) btn.classList.add('active');
+      btn.onclick = () => selectDay(d);
+      nav.appendChild(btn);
+    });
+  }
+  function selectDay(day) {
+    selectedDay = day;
+    document.getElementById('currentDay').textContent = day;
+    loadNav();
+    update();
+  }
+
+  function addWater(amount) {
+    const key = 'water_' + selectedDay;
+    const total = Number(localStorage.getItem(key)) || 0;
+    localStorage.setItem(key, total + amount);
+    update();
+  }
+   function update() {
+    const total = Number(localStorage.getItem('water_' + selectedDay)) || 0;
+    document.getElementById('total').textContent = total;
+
+    const percent = Math.min((total / 2000) * 100, 100);
+    const bar = document.getElementById('bar');
+    bar.style.width = percent + '%';
+    bar.style.background =
+      percent < 50 ? 'red' : percent < 80 ? 'orange' : 'green';
+  }
+
+  function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+  }
+  loadNav();
+  selectDay(selectedDay);
+</script>
+
+</body>
+</html>
